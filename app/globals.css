@@ -1,27 +1,203 @@
+/* ============================================
+   Living Letters — Design System CSS
+   ============================================ */
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
+/* ---------- Google Fonts Import ---------- */
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400;1,600&family=Inter:wght@300;400;500;600;700&display=swap');
+
+/* ---------- CSS Variables (Design Tokens) ---------- */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --color-violet: #EA580C;
+  --color-violet-dark: #9A3412;
+  --color-violet-light: #F97316;
+  --color-or: #C8A24A;
+  --color-or-light: #DDB96A;
+  --color-or-dark: #A8832A;
+  --color-cream: #FFF5EC;
+  --color-cream-dark: #F0EBE0;
+  --color-dark: #1C1410;
+  --color-dark-soft: #3D2B1F;
+  --color-muted: #7A6355;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+/* ---------- Base Styles ---------- */
+@layer base {
+  * {
+    box-sizing: border-box;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    font-family: 'Inter', system-ui, sans-serif;
+    background-color: var(--color-cream);
+    color: var(--color-dark);
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Playfair Display', Georgia, serif;
+    font-weight: 700;
+    line-height: 1.25;
+    color: var(--color-dark);
+  }
+
+  a {
+    color: inherit;
+    text-decoration: none;
+  }
+
+  img {
+    max-width: 100%;
+    display: block;
   }
 }
 
-body {
-  color: var(--foreground);
-  background: var(--background);
-  font-family: Arial, Helvetica, sans-serif;
+/* ---------- Component Classes ---------- */
+@layer components {
+  /* Buttons */
+  .btn-primary {
+    @apply inline-flex items-center justify-center gap-2 px-6 py-3 rounded-lg font-semibold text-sm transition-all duration-200;
+    background: linear-gradient(135deg, #EA580C 0%, #9A3412 100%);
+    color: #C8A24A;
+    box-shadow: 0 4px 16px rgba(110, 30, 43, 0.3);
+  }
+  .btn-primary:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 24px rgba(110, 30, 43, 0.4);
+    background: linear-gradient(135deg, #F97316 0%, #EA580C 100%);
+  }
+  .btn-primary:active {
+    transform: translateY(0);
+  }
+
+  .btn-secondary {
+    @apply inline-flex items-center justify-center gap-2 px-6 py-3 rounded-lg font-semibold text-sm transition-all duration-200 border-2;
+    border-color: #EA580C;
+    color: #EA580C;
+    background: transparent;
+  }
+  .btn-secondary:hover {
+    background-color: #EA580C;
+    color: #C8A24A;
+    transform: translateY(-1px);
+  }
+
+  .btn-gold {
+    @apply inline-flex items-center justify-center gap-2 px-6 py-3 rounded-lg font-semibold text-sm transition-all duration-200;
+    background: linear-gradient(135deg, #C8A24A 0%, #A8832A 100%);
+    color: #1C1410;
+    box-shadow: 0 4px 16px rgba(200, 162, 74, 0.35);
+  }
+  .btn-gold:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 24px rgba(200, 162, 74, 0.45);
+    background: linear-gradient(135deg, #DDB96A 0%, #C8A24A 100%);
+  }
+
+  .btn-ghost {
+    @apply inline-flex items-center justify-center gap-2 px-4 py-2 rounded-lg font-medium text-sm transition-all duration-200;
+    color: var(--color-dark-soft);
+  }
+  .btn-ghost:hover {
+    background-color: var(--color-cream-dark);
+    color: var(--color-violet);
+  }
+
+  /* Cards */
+  .card {
+    @apply rounded-2xl p-6 transition-all duration-200;
+    background: white;
+    box-shadow: 0 2px 16px rgba(28, 20, 16, 0.08);
+  }
+  .card:hover {
+    box-shadow: 0 8px 32px rgba(28, 20, 16, 0.14);
+    transform: translateY(-2px);
+  }
+
+  .card-flat {
+    @apply rounded-2xl p-6;
+    background: white;
+    border: 1px solid #F0EBE0;
+  }
+
+  /* Form Elements */
+  .input-field {
+    @apply w-full px-4 py-3 rounded-lg text-sm font-medium transition-all duration-200 outline-none;
+    border: 1.5px solid #E8E0D4;
+    background: white;
+    color: var(--color-dark);
+  }
+  .input-field::placeholder {
+    color: #9E8E80;
+  }
+  .input-field:focus {
+    border-color: #EA580C;
+    box-shadow: 0 0 0 3px rgba(110, 30, 43, 0.1);
+  }
+  .input-field:hover:not(:focus) {
+    border-color: #C8A24A;
+  }
+
+  .label {
+    @apply block text-sm font-semibold mb-1.5;
+    color: var(--color-dark-soft);
+  }
+
+  /* Section headers */
+  .section-title {
+    @apply text-3xl md:text-4xl font-bold;
+    font-family: 'Playfair Display', Georgia, serif;
+    color: var(--color-dark);
+  }
+
+  .section-subtitle {
+    @apply text-lg mt-3;
+    color: var(--color-muted);
+    font-weight: 400;
+  }
+
+  .divider-gold {
+    @apply block w-16 h-1 rounded-full mx-auto mt-4;
+    background: linear-gradient(90deg, #C8A24A, #DDB96A);
+  }
+
+  /* Badge */
+  .badge {
+    @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold;
+  }
+
+  /* Container */
+  .container-brand {
+    @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8;
+  }
 }
 
-@layer utilities {
-  .text-balance {
-    text-wrap: balance;
-  }
+/* ---------- Scrollbar ---------- */
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #F0EBE0;
+}
+::-webkit-scrollbar-thumb {
+  background: #C8A24A;
+  border-radius: 99px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #EA580C;
+}
+
+/* ---------- Selection ---------- */
+::selection {
+  background-color: rgba(200, 162, 74, 0.3);
+  color: #EA580C;
 }
