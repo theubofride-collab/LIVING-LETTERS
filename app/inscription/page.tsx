@@ -18,7 +18,7 @@ export default function InscriptionPage() {
     setLoading(true); setError('')
     try {
       await authService.register({ nom: form.nom, email: form.email, motDePasse: form.motDePasse, sexe: form.sexe })
-      router.push('/')
+      router.push('/connexion')
     } catch (err: any) {
       setError(err.message || "Erreur lors de l'inscription.")
     } finally {

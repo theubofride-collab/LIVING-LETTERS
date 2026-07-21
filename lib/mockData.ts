@@ -180,7 +180,7 @@ export const MOCK_COMMANDES: Commande[] = [
   {
     id: 1002,
     dateCommande: '2026-07-02T14:00:00',
-    statut: 'EN_PREPARATION',
+    statut: 'EN_LIVRAISON',
     utilisateurId: 1,
     adresseId: 1,
     adresse: MOCK_ADRESSES[0],

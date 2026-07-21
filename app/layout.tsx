@@ -4,6 +4,8 @@ import Header from '@/components/layout/Header'
 import Footer from '@/components/layout/Footer'
 import { ThemeProvider } from '@/components/layout/ThemeProvider'
 import { LanguageProvider } from '@/lib/i18n/LanguageContext'
+import { PanierProvider } from '@/context/PanierContext'
+import { ToastProvider } from '@/context/ToastContext'
 
 export const metadata: Metadata = {
   title: {
@@ -36,11 +38,15 @@ export default function RootLayout({
       <body className="font-sans antialiased text-brand-dark dark:text-gray-100 bg-brand-cream dark:bg-gray-950 transition-colors duration-300">
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
           <LanguageProvider>
-            <Header />
-            <main className="min-h-screen">
-              {children}
-            </main>
-            <Footer />
+            <PanierProvider>
+              <ToastProvider>
+                <Header />
+                <main className="min-h-screen">
+                  {children}
+                </main>
+                <Footer />
+              </ToastProvider>
+            </PanierProvider>
           </LanguageProvider>
         </ThemeProvider>
       </body>

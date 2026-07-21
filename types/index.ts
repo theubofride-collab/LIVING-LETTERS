@@ -7,9 +7,8 @@
 export type UserRole = 'ADMIN' | 'CLIENT'
 export type CommandeStatut =
   | 'EN_ATTENTE'
-  | 'CONFIRMEE'
-  | 'EN_PREPARATION'
-  | 'EXPEDIEE'
+  | 'VALIDEE'
+  | 'EN_LIVRAISON'
   | 'LIVREE'
   | 'ANNULEE'
 export type ModePaiement = 'MOMO' | 'ORANGE_MONEY' | 'ESPECES'
@@ -142,7 +141,6 @@ export interface RegisterRequest {
 export interface AuthResponse {
   accessToken: string
   refreshToken?: string
-  tokenType: string
   utilisateur: Utilisateur
 }
 

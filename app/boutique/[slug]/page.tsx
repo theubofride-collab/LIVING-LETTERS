@@ -5,6 +5,7 @@ import { ArrowLeft, ShoppingCart, Star, Minus, Plus, BookOpen, User, Calendar } 
 import StarRating from '@/components/ui/StarRating'
 import { MOCK_LIVRES, MOCK_COMMENTAIRES } from '@/lib/mockData'
 import { usePanier } from '@/hooks/usePanier'
+import { useToast } from '@/context/ToastContext'
 
 import { useAuth } from '@/hooks/useAuth'
 
@@ -16,6 +17,7 @@ export default function FicheLivrePage({ params }: { params: { slug: string } })
   const [qte, setQte] = useState(1)
   const [activeTab, setActiveTab] = useState<'description' | 'avis'>('description')
   const { addItem } = usePanier()
+  const { showToast } = useToast()
   const { user } = useAuth()
   
   const [newComment, setNewComment] = useState('')
@@ -115,7 +117,7 @@ export default function FicheLivrePage({ params }: { params: { slug: string } })
                 </div>
                 <button
                   id="fiche-add-to-cart"
-                  onClick={() => addItem({ qte, panierId: 1, livreId: livre.id, livre })}
+                  onClick={() => { addItem({ qte, panierId: 1, livreId: livre.id, livre }); showToast(`${livre.nom} ajouté au panier`) }}
                   className="btn-primary flex-1"
                 >
                   <ShoppingCart className="w-5 h-5" />

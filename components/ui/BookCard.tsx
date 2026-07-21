@@ -2,6 +2,7 @@
 import Link from 'next/link'
 import { ShoppingCart, Star } from 'lucide-react'
 import { Livre } from '@/types'
+import { useToast } from '@/context/ToastContext'
 
 interface BookCardProps {
   livre: Livre
@@ -16,6 +17,12 @@ export default function BookCard({ livre, onAddToCart }: BookCardProps) {
   const slug = livre.slug || livre.id.toString()
   const stockFaible = livre.stock > 0 && livre.stock <= 5
   const enRupture = livre.stock === 0
+  const { showToast } = useToast()
+
+  const handleAdd = () => {
+    onAddToCart?.(livre)
+    showToast(`${livre.nom} ajouté au panier`)
+  }
 
   return (
     <article className="group relative bg-white rounded-2xl overflow-hidden transition-all duration-300 hover:-translate-y-1"
@@ -95,7 +102,7 @@ export default function BookCard({ livre, onAddToCart }: BookCardProps) {
           </span>
           <button
             id={`add-cart-${livre.id}`}
-            onClick={() => onAddToCart?.(livre)}
+            onClick={handleAdd}
             disabled={enRupture}
             aria-label={`Ajouter ${livre.nom} au panier`}
             className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all duration-200 disabled:opacity-40 disabled:cursor-not-allowed"

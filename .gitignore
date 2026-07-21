@@ -13,6 +13,10 @@
 /.next/
 /out/
 
+# java / maven
+backend/target/
+backend/.flattened-pom.xml
+
 # production
 /build
 
