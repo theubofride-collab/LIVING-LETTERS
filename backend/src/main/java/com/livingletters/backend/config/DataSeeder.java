@@ -28,7 +28,7 @@ public class DataSeeder {
                                CommentaireRepository commentaireRepository,
                                PasswordEncoder passwordEncoder) {
         return args -> {
-            if (utilisateurRepository.count() > 0) {
+            if (categorieRepository.count() > 0) {
                 log.info("Données déjà présentes, skip du seeding.");
                 return;
             }
