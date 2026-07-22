@@ -23,7 +23,7 @@ if [ -n "$DATABASE_URL" ]; then
     DB_PORT="5432"
   fi
 
-  export SPRING_DATASOURCE_URL="jdbc:postgresql://${DB_HOST}:${DB_PORT}/${DB_NAME}"
+  export SPRING_DATASOURCE_URL="jdbc:postgresql://${DB_HOST}:${DB_PORT}/${DB_NAME}?sslmode=require"
   export SPRING_DATASOURCE_USERNAME="$DB_USER"
   export SPRING_DATASOURCE_PASSWORD="$DB_PASS"
 
