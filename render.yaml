@@ -23,7 +23,6 @@ services:
       - key: FRONTEND_URL
         value: "https://living-letters-web.onrender.com"
       - key: CLOUDINARY_URL
-        sync: false
         value: ""
       - key: JAVA_VERSION
         value: "17"
