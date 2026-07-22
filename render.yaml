@@ -14,23 +14,23 @@ services:
         fromDatabase:
           name: living-letters-db
           property: connectionString
-      - key: DATABASE_HOST
+      - key: DB_HOST
         fromDatabase:
           name: living-letters-db
-          property: hostInternal
-      - key: DATABASE_PORT
+          property: host
+      - key: DB_PORT
         fromDatabase:
           name: living-letters-db
           property: port
-      - key: DATABASE_NAME
+      - key: DB_NAME
         fromDatabase:
           name: living-letters-db
-          property: databaseName
-      - key: DATABASE_USERNAME
+          property: database
+      - key: DB_USER
         fromDatabase:
           name: living-letters-db
-          property: username
-      - key: DATABASE_PASSWORD
+          property: user
+      - key: DB_PASSWORD
         fromDatabase:
           name: living-letters-db
           property: password
