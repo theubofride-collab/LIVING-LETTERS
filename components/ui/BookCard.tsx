@@ -32,6 +32,8 @@ export default function BookCard({ livre, onAddToCart }: BookCardProps) {
     showToast(`${livre.nom} ajouté au panier`)
   }
 
+  const hasRealImage = livre.couverture && (livre.couverture.startsWith('http') || livre.couverture.startsWith('data:'))
+
   return (
     <article className="group relative bg-white rounded-2xl overflow-hidden transition-all duration-300 hover:-translate-y-1"
       style={{ boxShadow: '0 2px 16px rgba(28,20,16,0.08)' }}
@@ -41,9 +43,9 @@ export default function BookCard({ livre, onAddToCart }: BookCardProps) {
       {/* Couverture */}
       <Link href={`/boutique/${slug}`} className="block overflow-hidden" aria-label={`Voir ${livre.nom}`}>
         <div className="relative h-56 overflow-hidden"
-          style={{ background: livre.couverture ? 'transparent' : 'linear-gradient(135deg, #EA580C 0%, #9A3412 50%, #1C1410 100%)' }}>
-          {livre.couverture ? (
-            <img src={livre.couverture} alt={livre.nom} className="w-full h-full object-cover" />
+          style={{ background: hasRealImage ? 'transparent' : 'linear-gradient(135deg, #EA580C 0%, #9A3412 50%, #1C1410 100%)' }}>
+          {hasRealImage ? (
+            <img src={livre.couverture} alt={livre.nom} className="w-full h-full object-cover" loading="lazy" />
           ) : (
             <div className="absolute inset-0 flex flex-col items-center justify-center p-4 text-center">
               <div className="w-16 h-16 rounded-full flex items-center justify-center mb-3 border-2 border-brand-or/40"

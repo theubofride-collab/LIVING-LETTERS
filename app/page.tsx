@@ -14,13 +14,36 @@ const services = [
   { icon: BookMarked, title: 'Partenariats', desc: 'Collaborations avec écoles et éditeurs pour l\'accès à la culture chrétienne.', color: '#C8A24A' },
 ]
 
+function SkeletonBook() {
+  return (
+    <div className="bg-white rounded-2xl overflow-hidden animate-pulse" style={{ boxShadow: '0 2px 16px rgba(28,20,16,0.08)' }}>
+      <div className="h-56" style={{ background: 'linear-gradient(135deg, #EA580C 0%, #9A3412 50%, #1C1410 100%)' }} />
+      <div className="p-4 space-y-3">
+        <div className="h-3 bg-gray-200 rounded w-16" />
+        <div className="h-4 bg-gray-200 rounded w-3/4" />
+        <div className="h-3 bg-gray-200 rounded w-1/2" />
+        <div className="flex justify-between items-center">
+          <div className="h-5 bg-gray-200 rounded w-20" />
+          <div className="h-8 bg-gray-200 rounded w-16" />
+        </div>
+      </div>
+    </div>
+  )
+}
+
 export default function HomePage() {
   const [featuredBooks, setFeaturedBooks] = useState<Livre[]>([])
   const [categories, setCategories] = useState<Categorie[]>([])
+  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    livreService.getAll({ page: 0, size: 4 }).then(res => setFeaturedBooks(res.content)).catch(() => {})
-    categorieService.getAll().then(setCategories).catch(() => {})
+    Promise.all([
+      livreService.getAll({ page: 0, size: 4 }),
+      categorieService.getAll(),
+    ]).then(([books, cats]) => {
+      setFeaturedBooks(books.content)
+      setCategories(cats)
+    }).catch(() => {}).finally(() => setLoading(false))
   }, [])
 
   return (
@@ -100,9 +123,18 @@ export default function HomePage() {
             <span className="divider-gold" />
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {featuredBooks.map((livre) => (
-              <BookCard key={livre.id} livre={livre} />
-            ))}
+            {loading ? (
+              <>
+                <SkeletonBook />
+                <SkeletonBook />
+                <SkeletonBook />
+                <SkeletonBook />
+              </>
+            ) : (
+              featuredBooks.map((livre) => (
+                <BookCard key={livre.id} livre={livre} />
+              ))
+            )}
           </div>
           <div className="text-center mt-10">
             <Link href="/boutique" id="home-voir-tout" className="btn-secondary inline-flex items-center gap-2">
@@ -165,20 +197,29 @@ export default function HomePage() {
             <span className="divider-gold" />
           </div>
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
-            {categories.map((cat) => (
-              <Link
-                key={cat.id}
-                href={`/boutique?categorieId=${cat.id}`}
-                id={`home-cat-${cat.id}`}
-                className="card text-center hover:border-brand-or group p-5"
-              >
-                <div className="w-10 h-10 rounded-full mx-auto mb-3 flex items-center justify-center"
-                  style={{ background: 'linear-gradient(135deg, #EA580C, #9A3412)' }}>
-                  <BookOpen className="w-5 h-5 text-brand-or" />
+            {loading ? (
+              Array.from({ length: 5 }).map((_, i) => (
+                <div key={i} className="bg-white rounded-2xl p-5 animate-pulse" style={{ boxShadow: '0 2px 16px rgba(28,20,16,0.08)' }}>
+                  <div className="w-10 h-10 rounded-full mx-auto mb-3 bg-gray-200" />
+                  <div className="h-3 bg-gray-200 rounded mx-auto w-2/3" />
                 </div>
-                <p className="font-serif font-semibold text-brand-dark text-sm group-hover:text-brand-orange transition-colors">{cat.nom}</p>
-              </Link>
-            ))}
+              ))
+            ) : (
+              categories.map((cat) => (
+                <Link
+                  key={cat.id}
+                  href={`/boutique?categorieId=${cat.id}`}
+                  id={`home-cat-${cat.id}`}
+                  className="card text-center hover:border-brand-or group p-5"
+                >
+                  <div className="w-10 h-10 rounded-full mx-auto mb-3 flex items-center justify-center"
+                    style={{ background: 'linear-gradient(135deg, #EA580C, #9A3412)' }}>
+                    <BookOpen className="w-5 h-5 text-brand-or" />
+                  </div>
+                  <p className="font-serif font-semibold text-brand-dark text-sm group-hover:text-brand-orange transition-colors">{cat.nom}</p>
+                </Link>
+              ))
+            )}
           </div>
         </div>
       </section>

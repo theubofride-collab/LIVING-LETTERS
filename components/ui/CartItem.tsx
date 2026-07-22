@@ -19,10 +19,14 @@ export default function CartItem({ item, onUpdateQte, onRemove }: CartItemProps)
   return (
     <div className="flex items-center gap-4 p-4 bg-white rounded-xl border border-brand-cream-dark">
       {/* Couverture miniature */}
-      <div className="w-16 h-20 rounded-lg flex-shrink-0 flex items-center justify-center"
-        style={{ background: 'linear-gradient(135deg, #EA580C, #9A3412)' }}>
-        <span className="font-serif text-brand-or text-lg">✦</span>
-      </div>
+      {item.livre?.couverture && (item.livre.couverture.startsWith('http') || item.livre.couverture.startsWith('data:')) ? (
+        <img src={item.livre.couverture} alt={item.livre?.nom || ''} className="w-16 h-20 rounded-lg flex-shrink-0 object-cover" />
+      ) : (
+        <div className="w-16 h-20 rounded-lg flex-shrink-0 flex items-center justify-center"
+          style={{ background: 'linear-gradient(135deg, #EA580C, #9A3412)' }}>
+          <span className="font-serif text-brand-or text-lg">✦</span>
+        </div>
+      )}
 
       {/* Infos */}
       <div className="flex-1 min-w-0">

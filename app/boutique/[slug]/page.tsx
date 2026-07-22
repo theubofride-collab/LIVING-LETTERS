@@ -83,6 +83,8 @@ export default function FicheLivrePage({ params }: { params: { slug: string } })
     )
   }
 
+  const hasRealImage = livre.couverture && (livre.couverture.startsWith('http') || livre.couverture.startsWith('data:'))
+
   return (
     <div className="min-h-screen" style={{ background: '#FFF5EC' }}>
       <div className="container-brand py-8">
@@ -94,8 +96,8 @@ export default function FicheLivrePage({ params }: { params: { slug: string } })
         <div className="grid md:grid-cols-2 gap-10 mb-12">
           {/* Couverture */}
           <div className="rounded-2xl overflow-hidden aspect-[3/4] max-h-[480px] flex items-center justify-center"
-            style={{ background: livre.couverture ? 'transparent' : 'linear-gradient(135deg, #EA580C 0%, #9A3412 50%, #1C1410 100%)' }}>
-            {livre.couverture ? (
+            style={{ background: hasRealImage ? 'transparent' : 'linear-gradient(135deg, #EA580C 0%, #9A3412 50%, #1C1410 100%)' }}>
+            {hasRealImage ? (
               <img src={livre.couverture} alt={livre.nom} className="w-full h-full object-cover rounded-2xl" />
             ) : (
               <div className="text-center p-8">
