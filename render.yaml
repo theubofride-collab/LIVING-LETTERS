@@ -32,6 +32,9 @@ services:
     region: frankfurt
     plan: free
     dockerfilePath: Dockerfile
+    buildArgs:
+      - name: NEXT_PUBLIC_API_URL
+        value: "https://living-letters-api.onrender.com/api"
     envVars:
       - key: NEXT_PUBLIC_API_URL
         value: "https://living-letters-api.onrender.com/api"
