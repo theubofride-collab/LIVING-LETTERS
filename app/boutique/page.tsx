@@ -1,11 +1,13 @@
 'use client'
-import { useState, useMemo } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { Search, SlidersHorizontal, X } from 'lucide-react'
 import BookCard from '@/components/ui/BookCard'
 import CategoryFilter from '@/components/ui/CategoryFilter'
 import Pagination from '@/components/ui/Pagination'
-import { MOCK_LIVRES, MOCK_CATEGORIES, MOCK_AUTEURS } from '@/lib/mockData'
-import { Livre } from '@/types'
+import { livreService } from '@/services/livreService'
+import { categorieService } from '@/services/categorieService'
+import { auteurService } from '@/services/auteurService'
+import { Livre, Categorie, Auteur } from '@/types'
 import { usePanier } from '@/hooks/usePanier'
 import { usePagination } from '@/hooks/usePagination'
 
@@ -21,19 +23,41 @@ export default function BoutiquePage() {
   const { page, goToPage, reset } = usePagination(0, PAGE_SIZE)
   const { addItem } = usePanier()
 
-  const filtered = useMemo(() => {
-    return MOCK_LIVRES.filter((l) => {
-      if (search && !l.nom.toLowerCase().includes(search.toLowerCase()) && !l.description.toLowerCase().includes(search.toLowerCase())) return false
-      if (categorieId && l.categorieId !== categorieId) return false
-      if (auteurId && !l.auteurs?.some(a => a.id === auteurId)) return false
-      if (minPrix && l.prix < parseFloat(minPrix)) return false
-      if (maxPrix && l.prix > parseFloat(maxPrix)) return false
-      return true
-    })
-  }, [search, categorieId, auteurId, minPrix, maxPrix])
+  const [livres, setLivres] = useState<Livre[]>([])
+  const [categories, setCategories] = useState<Categorie[]>([])
+  const [auteurs, setAuteurs] = useState<Auteur[]>([])
+  const [totalPages, setTotalPages] = useState(0)
+  const [totalResults, setTotalResults] = useState(0)
+  const [loading, setLoading] = useState(true)
 
-  const totalPages = Math.ceil(filtered.length / PAGE_SIZE)
-  const paginated = filtered.slice(page * PAGE_SIZE, (page + 1) * PAGE_SIZE)
+  const fetchLivres = useCallback(async () => {
+    setLoading(true)
+    try {
+      const res = await livreService.getAll({
+        page,
+        size: PAGE_SIZE,
+        q: search || undefined,
+        categorieId: categorieId ?? undefined,
+        auteurId: auteurId ?? undefined,
+        minPrix: minPrix ? parseFloat(minPrix) : undefined,
+        maxPrix: maxPrix ? parseFloat(maxPrix) : undefined,
+      })
+      setLivres(res.content)
+      setTotalPages(res.totalPages)
+      setTotalResults(res.totalElements)
+    } catch {
+      setLivres([])
+    } finally {
+      setLoading(false)
+    }
+  }, [page, search, categorieId, auteurId, minPrix, maxPrix])
+
+  useEffect(() => { fetchLivres() }, [fetchLivres])
+
+  useEffect(() => {
+    categorieService.getAll().then(setCategories).catch(() => {})
+    auteurService.getAll().then(setAuteurs).catch(() => {})
+  }, [])
 
   const handleFilterChange = (fn: () => void) => { fn(); reset() }
 
@@ -80,33 +104,29 @@ export default function BoutiquePage() {
         {showFilters && (
           <div className="card-flat mb-6 p-5 animate-slide-up">
             <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
-              {/* Catégorie */}
               <div>
                 <label className="label" htmlFor="filter-categorie">Catégorie</label>
                 <select id="filter-categorie" className="input-field"
                   value={categorieId ?? ''}
                   onChange={(e) => handleFilterChange(() => setCategorieId(e.target.value ? parseInt(e.target.value) : null))}>
                   <option value="">Toutes</option>
-                  {MOCK_CATEGORIES.map(c => <option key={c.id} value={c.id}>{c.nom}</option>)}
+                  {categories.map(c => <option key={c.id} value={c.id}>{c.nom}</option>)}
                 </select>
               </div>
-              {/* Auteur */}
               <div>
                 <label className="label" htmlFor="filter-auteur">Auteur</label>
                 <select id="filter-auteur" className="input-field"
                   value={auteurId ?? ''}
                   onChange={(e) => handleFilterChange(() => setAuteurId(e.target.value ? parseInt(e.target.value) : null))}>
                   <option value="">Tous</option>
-                  {MOCK_AUTEURS.map(a => <option key={a.id} value={a.id}>{a.nom}</option>)}
+                  {auteurs.map(a => <option key={a.id} value={a.id}>{a.nom}</option>)}
                 </select>
               </div>
-              {/* Prix min */}
               <div>
                 <label className="label" htmlFor="filter-prix-min">Prix minimum (FCFA)</label>
                 <input id="filter-prix-min" type="number" placeholder="0" className="input-field"
                   value={minPrix} onChange={(e) => handleFilterChange(() => setMinPrix(e.target.value))} />
               </div>
-              {/* Prix max */}
               <div>
                 <label className="label" htmlFor="filter-prix-max">Prix maximum (FCFA)</label>
                 <input id="filter-prix-max" type="number" placeholder="50000" className="input-field"
@@ -124,7 +144,7 @@ export default function BoutiquePage() {
         {/* Filtre catégories pills */}
         <div className="mb-8">
           <CategoryFilter
-            categories={MOCK_CATEGORIES}
+            categories={categories}
             selected={categorieId}
             onChange={(id) => handleFilterChange(() => setCategorieId(id))}
           />
@@ -133,11 +153,15 @@ export default function BoutiquePage() {
         {/* Résultats */}
         <div className="flex items-center justify-between mb-6">
           <p className="text-sm text-brand-muted">
-            <strong className="text-brand-dark">{filtered.length}</strong> résultat{filtered.length > 1 ? 's' : ''}
+            <strong className="text-brand-dark">{totalResults}</strong> résultat{totalResults > 1 ? 's' : ''}
           </p>
         </div>
 
-        {paginated.length === 0 ? (
+        {loading ? (
+          <div className="flex items-center justify-center min-h-[40vh]">
+            <div className="w-8 h-8 border-3 border-brand-orange border-t-transparent rounded-full animate-spin" />
+          </div>
+        ) : livres.length === 0 ? (
           <div className="text-center py-24">
             <div className="text-5xl mb-4">📚</div>
             <h3 className="font-serif text-xl font-bold text-brand-dark mb-2">Aucun résultat</h3>
@@ -145,7 +169,7 @@ export default function BoutiquePage() {
           </div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {paginated.map((livre) => (
+            {livres.map((livre) => (
               <BookCard key={livre.id} livre={livre} onAddToCart={handleAddToCart} />
             ))}
           </div>

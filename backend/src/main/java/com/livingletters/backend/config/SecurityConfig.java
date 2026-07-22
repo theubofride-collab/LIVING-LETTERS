@@ -51,6 +51,7 @@ public class SecurityConfig {
                         .requestMatchers("/v1/utilisateurs/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.PATCH, "/v1/commandes/*/statut").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.POST, "/v1/commandes/*/facture").hasRole("ADMIN")
+                        .requestMatchers("/v1/upload/**").hasRole("ADMIN")
                         // All other endpoints require authentication
                         .anyRequest().authenticated()
                 )

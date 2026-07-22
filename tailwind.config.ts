@@ -11,6 +11,9 @@ const config: Config = {
     extend: {
       colors: {
         brand: {
+          orange: '#EA580C',
+          'orange-dark': '#9A3412',
+          'orange-light': '#F97316',
           violet: '#EA580C',
           'violet-dark': '#9A3412',
           'violet-light': '#F97316',

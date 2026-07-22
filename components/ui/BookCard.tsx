@@ -3,6 +3,8 @@ import Link from 'next/link'
 import { ShoppingCart, Star } from 'lucide-react'
 import { Livre } from '@/types'
 import { useToast } from '@/context/ToastContext'
+import { useRouter } from 'next/navigation'
+import { isAuthenticated } from '@/lib/auth'
 
 interface BookCardProps {
   livre: Livre
@@ -18,8 +20,14 @@ export default function BookCard({ livre, onAddToCart }: BookCardProps) {
   const stockFaible = livre.stock > 0 && livre.stock <= 5
   const enRupture = livre.stock === 0
   const { showToast } = useToast()
+  const router = useRouter()
 
   const handleAdd = () => {
+    if (!isAuthenticated()) {
+      showToast('Connectez-vous pour ajouter au panier')
+      router.push('/connexion?redirect=/boutique')
+      return
+    }
     onAddToCart?.(livre)
     showToast(`${livre.nom} ajouté au panier`)
   }
@@ -33,15 +41,18 @@ export default function BookCard({ livre, onAddToCart }: BookCardProps) {
       {/* Couverture */}
       <Link href={`/boutique/${slug}`} className="block overflow-hidden" aria-label={`Voir ${livre.nom}`}>
         <div className="relative h-56 overflow-hidden"
-          style={{ background: 'linear-gradient(135deg, #EA580C 0%, #9A3412 50%, #1C1410 100%)' }}>
-          {/* Placeholder couverture */}
-          <div className="absolute inset-0 flex flex-col items-center justify-center p-4 text-center">
-            <div className="w-16 h-16 rounded-full flex items-center justify-center mb-3 border-2 border-brand-or/40"
-              style={{ background: 'rgba(200,162,74,0.15)' }}>
-              <span className="font-serif text-2xl text-brand-or">✦</span>
+          style={{ background: livre.couverture ? 'transparent' : 'linear-gradient(135deg, #EA580C 0%, #9A3412 50%, #1C1410 100%)' }}>
+          {livre.couverture ? (
+            <img src={livre.couverture} alt={livre.nom} className="w-full h-full object-cover" />
+          ) : (
+            <div className="absolute inset-0 flex flex-col items-center justify-center p-4 text-center">
+              <div className="w-16 h-16 rounded-full flex items-center justify-center mb-3 border-2 border-brand-or/40"
+                style={{ background: 'rgba(200,162,74,0.15)' }}>
+                <span className="font-serif text-2xl text-brand-or">✦</span>
+              </div>
+              <p className="font-serif text-white/90 text-sm font-semibold line-clamp-2 leading-tight">{livre.nom}</p>
             </div>
-            <p className="font-serif text-white/90 text-sm font-semibold line-clamp-2 leading-tight">{livre.nom}</p>
-          </div>
+          )}
 
           {/* Badge statut stock */}
           {enRupture && (

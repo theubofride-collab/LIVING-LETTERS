@@ -17,7 +17,7 @@ export default function ConnexionPage() {
     setLoading(true); setError('')
     try {
       await authService.login(form)
-      router.push('/')
+      window.location.href = '/'
     } catch (err: any) {
       setError(err.message || 'Identifiants incorrects. Veuillez réessayer.')
     } finally {

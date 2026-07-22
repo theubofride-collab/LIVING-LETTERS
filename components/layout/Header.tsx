@@ -2,11 +2,32 @@
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { Search, ShoppingCart, User, Menu, X, BookOpen, Sun, Moon, Globe } from 'lucide-react'
+import { ShoppingCart, Menu, X, BookOpen, Sun, Moon, Globe, Shield, User as UserIcon } from 'lucide-react'
 import { usePanier } from '@/hooks/usePanier'
 import { useAuth } from '@/hooks/useAuth'
 import { useTheme } from 'next-themes'
 import { useLanguage } from '@/lib/i18n/LanguageContext'
+
+function getInitials(nom: string): string {
+  const parts = nom.trim().split(/\s+/)
+  if (parts.length >= 2) return (parts[0][0] + parts[1][0]).toUpperCase()
+  return nom.charAt(0).toUpperCase()
+}
+
+function RoleBadge({ role }: { role: string }) {
+  if (role === 'ADMIN') {
+    return (
+      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-brand-dark/10 text-brand-dark">
+        <Shield className="w-2.5 h-2.5" /> Admin
+      </span>
+    )
+  }
+  return (
+    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-brand-orange/10 text-brand-orange">
+      <UserIcon className="w-2.5 h-2.5" /> Client
+    </span>
+  )
+}
 
 export default function Header() {
   const [menuOpen, setMenuOpen] = useState(false)
@@ -59,7 +80,7 @@ export default function Header() {
           </nav>
 
           {/* Actions */}
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-3">
             {/* Lang Toggle */}
             <button 
               onClick={() => setLang(lang === 'fr' ? 'en' : 'fr')}
@@ -88,19 +109,45 @@ export default function Header() {
               )}
             </Link>
 
+            {/* User section */}
             <div className="hidden sm:block">
               {user ? (
                 <div className="group relative">
-                  <button className="w-10 h-10 rounded-full bg-brand-orange text-white flex items-center justify-center font-bold text-sm">
-                    {user.nom.charAt(0)}
+                  {/* Cercle initiales + nom + badge */}
+                  <button className="flex items-center gap-2.5 px-2 py-1.5 rounded-xl hover:bg-brand-cream dark:hover:bg-gray-800 transition-colors">
+                    <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm text-white flex-shrink-0 ${
+                      user.role === 'ADMIN' ? 'bg-brand-dark' : ''
+                    }`} style={user.role !== 'ADMIN' ? { background: 'linear-gradient(135deg, #EA580C, #9A3412)' } : {}}>
+                      {getInitials(user.nom)}
+                    </div>
+                    <div className="hidden lg:block text-left">
+                      <p className="text-sm font-semibold text-brand-dark dark:text-white leading-tight truncate max-w-[120px]">{user.nom}</p>
+                      <RoleBadge role={user.role} />
+                    </div>
                   </button>
-                  <div className="absolute right-0 top-full mt-2 w-48 bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-brand-cream-dark dark:border-gray-700 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all">
+
+                  {/* Dropdown menu */}
+                  <div className="absolute right-0 top-full mt-2 w-56 bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-brand-cream-dark dark:border-gray-700 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-50">
+                    {/* En-tête user dans le dropdown */}
+                    <div className="px-4 py-3 border-b border-brand-cream-dark dark:border-gray-700">
+                      <p className="font-semibold text-sm text-brand-dark dark:text-white truncate">{user.nom}</p>
+                      <p className="text-xs text-brand-muted truncate">{user.email}</p>
+                    </div>
                     <div className="p-2">
-                      <Link href="/compte/profil" className="block px-4 py-2 text-sm text-brand-dark dark:text-gray-200 hover:bg-brand-cream dark:hover:bg-gray-700 rounded-lg">{t.header.profile}</Link>
+                      <Link href="/compte/profil" className="flex items-center gap-2 px-3 py-2 text-sm text-brand-dark dark:text-gray-200 hover:bg-brand-cream dark:hover:bg-gray-700 rounded-lg transition-colors">
+                        <UserIcon className="w-4 h-4 text-brand-muted" />
+                        Mon profil
+                      </Link>
                       {user.role === 'ADMIN' && (
-                        <Link href="/admin" className="block px-4 py-2 text-sm text-brand-dark dark:text-gray-200 hover:bg-brand-cream dark:hover:bg-gray-700 rounded-lg">{t.header.admin}</Link>
+                        <Link href="/admin" className="flex items-center gap-2 px-3 py-2 text-sm text-brand-dark dark:text-gray-200 hover:bg-brand-cream dark:hover:bg-gray-700 rounded-lg transition-colors">
+                          <Shield className="w-4 h-4 text-brand-muted" />
+                          Administration
+                        </Link>
                       )}
-                      <button onClick={logout} className="w-full text-left px-4 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/30 rounded-lg">{t.header.logout}</button>
+                      <div className="border-t border-brand-cream-dark dark:border-gray-700 my-1" />
+                      <button onClick={logout} className="w-full flex items-center gap-2 px-3 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/30 rounded-lg transition-colors">
+                        Déconnexion
+                      </button>
                     </div>
                   </div>
                 </div>
@@ -149,8 +196,23 @@ export default function Header() {
 
               {user ? (
                 <>
-                  <Link href="/compte/profil" className="block px-4 py-3 font-medium text-brand-dark dark:text-gray-200" onClick={() => setMenuOpen(false)}>{t.header.profile}</Link>
-                  <button onClick={() => { logout(); setMenuOpen(false) }} className="w-full text-left px-4 py-3 font-medium text-red-600 dark:text-red-400">{t.header.logout}</button>
+                  {/* Mobile : info user */}
+                  <div className="flex items-center gap-3 px-4 py-3 mb-2">
+                    <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm text-white flex-shrink-0 ${
+                      user.role === 'ADMIN' ? 'bg-brand-dark' : ''
+                    }`} style={user.role !== 'ADMIN' ? { background: 'linear-gradient(135deg, #EA580C, #9A3412)' } : {}}>
+                      {getInitials(user.nom)}
+                    </div>
+                    <div>
+                      <p className="font-semibold text-sm text-brand-dark dark:text-white">{user.nom}</p>
+                      <RoleBadge role={user.role} />
+                    </div>
+                  </div>
+                  <Link href="/compte/profil" className="block px-4 py-3 font-medium text-brand-dark dark:text-gray-200" onClick={() => setMenuOpen(false)}>Mon profil</Link>
+                  {user.role === 'ADMIN' && (
+                    <Link href="/admin" className="block px-4 py-3 font-medium text-brand-dark dark:text-gray-200" onClick={() => setMenuOpen(false)}>Administration</Link>
+                  )}
+                  <button onClick={() => { logout(); setMenuOpen(false) }} className="w-full text-left px-4 py-3 font-medium text-red-600 dark:text-red-400">Déconnexion</button>
                 </>
               ) : (
                 <div className="flex flex-col gap-2 px-4">

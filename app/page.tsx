@@ -1,15 +1,12 @@
-import type { Metadata } from 'next'
+'use client'
+import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { BookOpen, ArrowRight, Users, BookMarked, Heart, Star, ChevronRight } from 'lucide-react'
 import BookCard from '@/components/ui/BookCard'
-import { MOCK_LIVRES, MOCK_CATEGORIES } from '@/lib/mockData'
+import { livreService } from '@/services/livreService'
+import { categorieService } from '@/services/categorieService'
+import { Livre, Categorie } from '@/types'
 
-export const metadata: Metadata = {
-  title: 'Accueil — Living Letters, Librairie Chrétienne',
-  description: 'Découvrez notre sélection de bibles, livres chrétiens, développement personnel et leadership au Cameroun.',
-}
-
-const featuredBooks = MOCK_LIVRES.slice(0, 4)
 const services = [
   { icon: BookOpen, title: 'Librairie physique', desc: 'Venez nous rendre visite à Yaoundé pour parcourir notre catalogue complet.', color: '#EA580C' },
   { icon: Users, title: 'Club de lecture', desc: 'Rejoignez notre communauté de lecteurs chrétiens pour des sessions enrichissantes.', color: '#C8A24A' },
@@ -18,12 +15,19 @@ const services = [
 ]
 
 export default function HomePage() {
+  const [featuredBooks, setFeaturedBooks] = useState<Livre[]>([])
+  const [categories, setCategories] = useState<Categorie[]>([])
+
+  useEffect(() => {
+    livreService.getAll({ page: 0, size: 4 }).then(res => setFeaturedBooks(res.content)).catch(() => {})
+    categorieService.getAll().then(setCategories).catch(() => {})
+  }, [])
+
   return (
     <>
       {/* ===== HERO ===== */}
       <section className="relative overflow-hidden py-24 md:py-36 bg-cover bg-center"
         style={{ backgroundImage: 'linear-gradient(135deg, rgba(234, 88, 12, 0.85) 0%, rgba(154, 52, 18, 0.90) 100%), url("/hero-bg.png")' }}>
-        {/* Décoration */}
         <div className="absolute inset-0 opacity-5">
           <div className="absolute top-10 left-10 w-64 h-64 rounded-full border-2 border-white" />
           <div className="absolute bottom-10 right-10 w-96 h-96 rounded-full border border-white" />
@@ -31,13 +35,11 @@ export default function HomePage() {
         </div>
 
         <div className="container-brand relative z-10 text-center">
-          {/* Logo / icon hero */}
           <div className="inline-flex items-center justify-center w-20 h-20 rounded-2xl mb-6 border-2 border-brand-or/40"
             style={{ background: 'rgba(200,162,74,0.15)' }}>
             <BookOpen className="w-10 h-10 text-brand-or" />
           </div>
 
-          {/* Slogan */}
           <p className="text-brand-or font-semibold tracking-widest uppercase text-sm mb-3">El Deah — Living Letters</p>
 
           <h1 className="font-serif text-4xl md:text-6xl lg:text-7xl font-bold text-white leading-tight">
@@ -61,7 +63,6 @@ export default function HomePage() {
             </Link>
           </div>
 
-          {/* Verset */}
           <div className="mt-16 max-w-xl mx-auto">
             <p className="font-serif text-base italic text-white/50 leading-relaxed">
               "Vous êtes vous-mêmes notre lettre, écrite dans nos cœurs…"
@@ -164,7 +165,7 @@ export default function HomePage() {
             <span className="divider-gold" />
           </div>
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
-            {MOCK_CATEGORIES.map((cat) => (
+            {categories.map((cat) => (
               <Link
                 key={cat.id}
                 href={`/boutique?categorieId=${cat.id}`}

@@ -1,12 +1,13 @@
 'use client'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
-import { ArrowLeft, ShoppingCart, Star, Minus, Plus, BookOpen, User, Calendar } from 'lucide-react'
+import { ArrowLeft, ShoppingCart, Star, Minus, Plus, User, AlertCircle } from 'lucide-react'
 import StarRating from '@/components/ui/StarRating'
-import { MOCK_LIVRES, MOCK_COMMENTAIRES } from '@/lib/mockData'
+import { livreService } from '@/services/livreService'
+import { commentaireService } from '@/services/commentaireService'
+import { Livre, Commentaire } from '@/types'
 import { usePanier } from '@/hooks/usePanier'
 import { useToast } from '@/context/ToastContext'
-
 import { useAuth } from '@/hooks/useAuth'
 
 function formatPrix(prix: number) {
@@ -19,51 +20,95 @@ export default function FicheLivrePage({ params }: { params: { slug: string } })
   const { addItem } = usePanier()
   const { showToast } = useToast()
   const { user } = useAuth()
-  
+
+  const [livre, setLivre] = useState<Livre | null>(null)
+  const [commentaires, setCommentaires] = useState<Commentaire[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState('')
+
   const [newComment, setNewComment] = useState('')
   const [newNote, setNewNote] = useState(5)
   const [isSubmitting, setIsSubmitting] = useState(false)
 
-  // Recherche mock par slug ou id
-  const livre = MOCK_LIVRES.find(l => l.slug === params.slug || l.id.toString() === params.slug) ?? MOCK_LIVRES[0]
-  const commentaires = MOCK_COMMENTAIRES.filter(c => c.livreId === livre.id)
+  useEffect(() => {
+    async function load() {
+      try {
+        const l = await livreService.getBySlug(params.slug)
+        setLivre(l)
+        const c = await commentaireService.getByLivre(l.id)
+        setCommentaires(c)
+      } catch {
+        setError('Livre introuvable.')
+      } finally {
+        setLoading(false)
+      }
+    }
+    load()
+  }, [params.slug])
 
   const handleCommentSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!newComment.trim()) return
+    if (!newComment.trim() || !livre) return
     setIsSubmitting(true)
-    // Simulation d'appel API
-    await new Promise(resolve => setTimeout(resolve, 800))
-    alert("Votre commentaire a été envoyé et est en attente de modération.")
-    setNewComment('')
-    setNewNote(5)
-    setIsSubmitting(false)
+    try {
+      const created = await commentaireService.create(livre.id, { note: newNote, commentaire: newComment })
+      setCommentaires(prev => [created, ...prev])
+      setNewComment('')
+      setNewNote(5)
+      showToast('Votre avis a été publié !')
+    } catch {
+      showToast('Erreur lors de l\'envoi.')
+    } finally {
+      setIsSubmitting(false)
+    }
+  }
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center" style={{ background: '#FFF5EC' }}>
+        <div className="w-8 h-8 border-3 border-brand-orange border-t-transparent rounded-full animate-spin" />
+      </div>
+    )
+  }
+
+  if (error || !livre) {
+    return (
+      <div className="min-h-screen flex items-center justify-center" style={{ background: '#FFF5EC' }}>
+        <div className="text-center">
+          <AlertCircle className="w-12 h-12 text-brand-muted mx-auto mb-3" />
+          <p className="text-brand-muted">{error || 'Livre introuvable.'}</p>
+          <Link href="/boutique" className="btn-primary mt-4 inline-flex">Retour à la boutique</Link>
+        </div>
+      </div>
+    )
   }
 
   return (
     <div className="min-h-screen" style={{ background: '#FFF5EC' }}>
       <div className="container-brand py-8">
-        {/* Retour */}
         <Link href="/boutique" className="btn-ghost mb-6 inline-flex gap-2 text-sm">
           <ArrowLeft className="w-4 h-4" />
           Retour à la boutique
         </Link>
 
-        {/* Fiche produit */}
         <div className="grid md:grid-cols-2 gap-10 mb-12">
           {/* Couverture */}
           <div className="rounded-2xl overflow-hidden aspect-[3/4] max-h-[480px] flex items-center justify-center"
-            style={{ background: 'linear-gradient(135deg, #EA580C 0%, #9A3412 50%, #1C1410 100%)' }}>
-            <div className="text-center p-8">
-              <div className="w-24 h-24 rounded-full flex items-center justify-center mx-auto mb-4 border-2 border-brand-or/40"
-                style={{ background: 'rgba(200,162,74,0.15)' }}>
-                <span className="font-serif text-5xl text-brand-or">✦</span>
+            style={{ background: livre.couverture ? 'transparent' : 'linear-gradient(135deg, #EA580C 0%, #9A3412 50%, #1C1410 100%)' }}>
+            {livre.couverture ? (
+              <img src={livre.couverture} alt={livre.nom} className="w-full h-full object-cover rounded-2xl" />
+            ) : (
+              <div className="text-center p-8">
+                <div className="w-24 h-24 rounded-full flex items-center justify-center mx-auto mb-4 border-2 border-brand-or/40"
+                  style={{ background: 'rgba(200,162,74,0.15)' }}>
+                  <span className="font-serif text-5xl text-brand-or">✦</span>
+                </div>
+                <p className="font-serif text-2xl font-bold text-white leading-snug">{livre.nom}</p>
+                {livre.auteurs && livre.auteurs.length > 0 && (
+                  <p className="text-brand-or/70 text-sm mt-2">{livre.auteurs.map(a => a.nom).join(', ')}</p>
+                )}
               </div>
-              <p className="font-serif text-2xl font-bold text-white leading-snug">{livre.nom}</p>
-              {livre.auteurs && livre.auteurs.length > 0 && (
-                <p className="text-brand-or/70 text-sm mt-2">{livre.auteurs.map(a => a.nom).join(', ')}</p>
-              )}
-            </div>
+            )}
           </div>
 
           {/* Détails */}
@@ -79,7 +124,6 @@ export default function FicheLivrePage({ params }: { params: { slug: string } })
               </p>
             )}
 
-            {/* Note */}
             {livre.notemoyenne !== undefined && (
               <div className="flex items-center gap-2 mb-4">
                 <StarRating value={Math.round(livre.notemoyenne)} readonly size="md" />
@@ -88,12 +132,10 @@ export default function FicheLivrePage({ params }: { params: { slug: string } })
               </div>
             )}
 
-            {/* Prix */}
             <p className="font-serif text-4xl font-bold mb-2" style={{ color: '#EA580C' }}>
               {formatPrix(livre.prix)}
             </p>
 
-            {/* Stock */}
             <div className="flex items-center gap-2 mb-6">
               <div className={`w-2 h-2 rounded-full ${livre.stock > 5 ? 'bg-green-500' : livre.stock > 0 ? 'bg-amber-500' : 'bg-red-500'}`} />
               <span className={`text-sm font-medium ${livre.stock > 5 ? 'text-green-700' : livre.stock > 0 ? 'text-amber-700' : 'text-red-700'}`}>
@@ -101,7 +143,6 @@ export default function FicheLivrePage({ params }: { params: { slug: string } })
               </span>
             </div>
 
-            {/* Quantité + Ajout panier */}
             {livre.stock > 0 && (
               <div className="flex items-center gap-4 mb-6">
                 <div className="flex items-center border border-brand-cream-dark rounded-xl overflow-hidden">
@@ -126,7 +167,6 @@ export default function FicheLivrePage({ params }: { params: { slug: string } })
               </div>
             )}
 
-            {/* Infos auteur */}
             {livre.auteurs && livre.auteurs.map(auteur => (
               <div key={auteur.id} className="card-flat p-4 flex items-start gap-3 mt-4">
                 <div className="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0"
@@ -183,18 +223,17 @@ export default function FicheLivrePage({ params }: { params: { slug: string } })
                         </span>
                       </div>
                     </div>
-                    <p className="text-sm text-brand-dark-soft dark:text-gray-300 leading-relaxed">{c.commentaire}</p>
+                    <p className="text-sm text-brand-dark-soft leading-relaxed">{c.commentaire}</p>
                   </div>
                 ))}
-                
-                {/* Formulaire de commentaire */}
-                <div className="mt-8 pt-8 border-t border-brand-cream-dark dark:border-gray-800">
+
+                <div className="mt-8 pt-8 border-t border-brand-cream-dark">
                   <h3 className="font-serif font-bold text-lg mb-4">Laissez votre avis</h3>
                   {user ? (
                     <form onSubmit={handleCommentSubmit} className="space-y-4">
                       <div>
                         <label className="block text-sm font-semibold mb-2">Votre note</label>
-                        <select 
+                        <select
                           className="input-field max-w-[150px]"
                           value={newNote}
                           onChange={(e) => setNewNote(Number(e.target.value))}
@@ -217,8 +256,8 @@ export default function FicheLivrePage({ params }: { params: { slug: string } })
                           onChange={(e) => setNewComment(e.target.value)}
                         />
                       </div>
-                      <button 
-                        type="submit" 
+                      <button
+                        type="submit"
                         disabled={isSubmitting}
                         className="btn-primary"
                       >
@@ -226,8 +265,8 @@ export default function FicheLivrePage({ params }: { params: { slug: string } })
                       </button>
                     </form>
                   ) : (
-                    <div className="bg-brand-cream dark:bg-gray-800 p-6 rounded-xl text-center">
-                      <p className="text-brand-muted dark:text-gray-400 mb-4">Vous devez être connecté pour laisser un avis.</p>
+                    <div className="bg-brand-cream p-6 rounded-xl text-center">
+                      <p className="text-brand-muted mb-4">Vous devez être connecté pour laisser un avis.</p>
                       <Link href="/connexion" className="btn-secondary inline-flex">
                         Se connecter
                       </Link>

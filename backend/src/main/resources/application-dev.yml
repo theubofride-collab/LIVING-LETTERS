@@ -16,6 +16,13 @@ spring:
     properties:
       hibernate:
         format_sql: true
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 10MB
 
 frontend:
   url: http://localhost:3000
+
+# Cloudinary (optional in dev - upload endpoint will return error if not configured)
+# Set CLOUDINARY_URL env var to enable: cloudinary://api_key:api_secret@cloud_name
