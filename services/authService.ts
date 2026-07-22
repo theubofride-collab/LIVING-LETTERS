@@ -11,8 +11,10 @@ export const authService = {
     setToken(accessToken)
     if (refreshToken) setRefreshToken(refreshToken)
     setStoredUser(utilisateur)
-    document.cookie = `ll_token=${accessToken}; path=/; SameSite=Strict`
-    document.cookie = `ll_role=${utilisateur.role}; path=/; SameSite=Strict`
+    try {
+      document.cookie = `ll_token=${accessToken}; path=/; SameSite=Strict`
+      document.cookie = `ll_role=${utilisateur.role}; path=/; SameSite=Strict`
+    } catch (e) {}
     return res.data
   },
 
