@@ -15,7 +15,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @Configuration
-@Profile("dev")
+@Profile({"dev", "prod"})
 @Slf4j
 public class DataSeeder {
 
