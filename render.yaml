@@ -14,6 +14,26 @@ services:
         fromDatabase:
           name: living-letters-db
           property: connectionString
+      - key: DATABASE_HOST
+        fromDatabase:
+          name: living-letters-db
+          property: hostInternal
+      - key: DATABASE_PORT
+        fromDatabase:
+          name: living-letters-db
+          property: port
+      - key: DATABASE_NAME
+        fromDatabase:
+          name: living-letters-db
+          property: databaseName
+      - key: DATABASE_USERNAME
+        fromDatabase:
+          name: living-letters-db
+          property: username
+      - key: DATABASE_PASSWORD
+        fromDatabase:
+          name: living-letters-db
+          property: password
       - key: JWT_SECRET
         generateValue: true
       - key: JWT_ACCESS_EXPIRATION
@@ -24,8 +44,6 @@ services:
         value: "https://living-letters-web.onrender.com"
       - key: CLOUDINARY_URL
         value: ""
-      - key: JAVA_VERSION
-        value: "17"
     healthCheckPath: /api/v1/categories
 
   # ---- Frontend (Next.js) ----
