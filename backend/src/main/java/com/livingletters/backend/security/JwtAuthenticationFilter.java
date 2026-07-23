@@ -38,6 +38,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         final String jwt = authHeader.substring(7);
 
+        if (jwt.isBlank() || jwt.split("\\.").length != 3) {
+            filterChain.doFilter(request, response);
+            return;
+        }
+
         if (tokenBlacklistService.isBlacklisted(jwt)) {
             filterChain.doFilter(request, response);
             return;

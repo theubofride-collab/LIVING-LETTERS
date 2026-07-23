@@ -12,8 +12,10 @@ export const authService = {
     if (refreshToken) setRefreshToken(refreshToken)
     setStoredUser(utilisateur)
     try {
-      document.cookie = `ll_token=${accessToken}; path=/; SameSite=Strict`
-      document.cookie = `ll_role=${utilisateur.role}; path=/; SameSite=Strict`
+      const isSecure = window.location.protocol === 'https:'
+      const cookieFlags = `path=/; SameSite=Lax${isSecure ? '; Secure' : ''}`
+      document.cookie = `ll_token=${accessToken}; ${cookieFlags}`
+      document.cookie = `ll_role=${utilisateur.role}; ${cookieFlags}`
     } catch (e) {}
     return res.data
   },
@@ -34,8 +36,10 @@ export const authService = {
       await apiClient.post(`${BASE}/logout`)
     } finally {
       removeToken()
-      document.cookie = 'll_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT'
-      document.cookie = 'll_role=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT'
+      const isSecure = window.location.protocol === 'https:'
+      const cookieFlags = `path=/; SameSite=Lax${isSecure ? '; Secure' : ''}`
+      document.cookie = `ll_token=; ${cookieFlags}; expires=Thu, 01 Jan 1970 00:00:00 GMT`
+      document.cookie = `ll_role=; ${cookieFlags}; expires=Thu, 01 Jan 1970 00:00:00 GMT`
     }
   },
 

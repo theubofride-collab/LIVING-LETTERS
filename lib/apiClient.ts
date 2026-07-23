@@ -66,6 +66,15 @@ apiClient.interceptors.response.use(
       }
     }
 
+    // 403 → token invalide, nettoyer et rediriger
+    if (error.response?.status === 403) {
+      removeToken()
+      if (typeof window !== 'undefined' && !window.location.pathname.startsWith('/connexion')) {
+        window.location.href = '/connexion'
+        return Promise.reject(new ApiError('Session expirée. Veuillez vous reconnecter.', 403, null))
+      }
+    }
+
     // Construction d'une erreur normalisée ProblemDetail
     return Promise.reject(parseApiError(error))
   }

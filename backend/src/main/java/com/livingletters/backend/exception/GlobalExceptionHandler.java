@@ -14,6 +14,8 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
+import io.jsonwebtoken.JwtException;
+
 import java.net.URI;
 import java.time.Instant;
 import java.util.List;
@@ -46,6 +48,11 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     public ResponseEntity<ProblemDetail> handleAccessDenied(AccessDeniedException ex, WebRequest request) {
         return buildResponse(HttpStatus.FORBIDDEN, "Accès refusé",
                 "Vous n'avez pas les droits suffisants pour accéder à cette ressource", request);
+    }
+
+    @ExceptionHandler(JwtException.class)
+    public ResponseEntity<ProblemDetail> handleJwtException(JwtException ex, WebRequest request) {
+        return buildResponse(HttpStatus.UNAUTHORIZED, "Token invalide", "Le token d'authentification est invalide ou a expiré", request);
     }
 
     @ExceptionHandler(IllegalArgumentException.class)
