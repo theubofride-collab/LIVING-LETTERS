@@ -5,7 +5,10 @@ export const uploadService = {
     const formData = new FormData()
     formData.append('file', file)
     const res = await apiClient.post('/v1/upload', formData, {
-      headers: { 'Content-Type': 'multipart/form-data' },
+      transformRequest: [(data, headers) => {
+        delete (headers as any)['Content-Type']
+        return data
+      }],
     })
     return res.data
   },
