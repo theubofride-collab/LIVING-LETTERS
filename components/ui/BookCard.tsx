@@ -98,11 +98,11 @@ export default function BookCard({ livre, onAddToCart }: BookCardProps) {
         )}
 
         {/* Note */}
-        {livre.notemoyenne !== undefined && (
+        {livre.notemoyenne != null && (
           <div className="flex items-center gap-1 mt-2">
             <Star className="w-3.5 h-3.5 fill-brand-or text-brand-or" />
             <span className="text-xs font-semibold text-brand-dark-soft">{livre.notemoyenne.toFixed(1)}</span>
-            {livre.nbCommentaires !== undefined && (
+            {livre.nbCommentaires != null && (
               <span className="text-xs text-brand-muted">({livre.nbCommentaires})</span>
             )}
           </div>

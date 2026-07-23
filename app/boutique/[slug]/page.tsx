@@ -126,7 +126,7 @@ export default function FicheLivrePage({ params }: { params: { slug: string } })
               </p>
             )}
 
-            {livre.notemoyenne !== undefined && (
+            {livre.notemoyenne != null && (
               <div className="flex items-center gap-2 mb-4">
                 <StarRating value={Math.round(livre.notemoyenne)} readonly size="md" />
                 <span className="text-sm font-semibold text-brand-dark">{livre.notemoyenne.toFixed(1)}</span>
