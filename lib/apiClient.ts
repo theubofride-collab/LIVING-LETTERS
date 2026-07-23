@@ -7,7 +7,7 @@
 
 import axios, { AxiosError, AxiosInstance, AxiosResponse, InternalAxiosRequestConfig } from 'axios'
 import { ProblemDetail } from '@/types'
-import { getToken, removeToken } from './auth'
+import { getToken, removeToken, isTokenExpired } from './auth'
 
 // ---- Instance axios ----
 const apiClient: AxiosInstance = axios.create({
@@ -23,7 +23,7 @@ const apiClient: AxiosInstance = axios.create({
 apiClient.interceptors.request.use(
   (config: InternalAxiosRequestConfig) => {
     const token = getToken()
-    if (token) {
+    if (token && !isTokenExpired(token)) {
       config.headers.Authorization = `Bearer ${token}`
     }
     return config

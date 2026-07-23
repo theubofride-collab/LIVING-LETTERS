@@ -12,7 +12,12 @@ const USER_KEY = 'll_user'
 // ---- Getters ----
 export function getToken(): string | null {
   if (typeof window === 'undefined') return null
-  return localStorage.getItem(TOKEN_KEY)
+  const token = localStorage.getItem(TOKEN_KEY)
+  if (!token || token.split('.').length !== 3) {
+    localStorage.removeItem(TOKEN_KEY)
+    return null
+  }
+  return token
 }
 
 export function getRefreshToken(): string | null {
